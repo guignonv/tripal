@@ -1,37 +1,41 @@
 <?php
 /**
  * @file
- * Implements the pub node content type
+ * Implements Drupal Node hooks to create the chado_analysis node content type.
+ *
+ * @ingroup tripal_pub
  */
 
 /**
  * Implements hook_node_info().
  *
+ * Provide information to drupal about the node types that we're creating
+ * in this module
+ *
  * @ingroup tripal_pub
  */
 function tripal_pub_node_info() {
-
-  return array(
-    'chado_pub' => array(
-      'name'        => t('Publication'),
-      'base'        => 'chado_pub',
-      'description' => t('A publication from the Chado database'),
-      'has_title'   => TRUE,
-      'locked'      => TRUE,
-      'chado_node_api' => array(
-        'base_table' => 'pub',
-        'hook_prefix' => 'chado_pub',
-        'record_type_title' => array(
-          'singular' => t('Publication'),
-          'plural' => t('Publications')
-        ),
-        'sync_filters' => array(
-          'type_id' => FALSE,
-          'organism_id' => FALSE
-        ),
+  $nodes = array();
+  $nodes['chado_pub'] = array(
+    'name'        => t('Publication'),
+    'base'        => 'chado_pub',
+    'description' => t('A publication from the Chado database'),
+    'has_title'   => TRUE,
+    'locked'      => TRUE,
+    'chado_node_api' => array(
+      'base_table' => 'pub',
+      'hook_prefix' => 'chado_pub',
+      'record_type_title' => array(
+        'singular' => t('Publication'),
+        'plural' => t('Publications')
+      ),
+      'sync_filters' => array(
+        'type_id' => FALSE,
+        'organism_id' => FALSE,
       ),
     ),
   );
+  return $nodes;
 }
 
 /**
@@ -333,23 +337,26 @@ function chado_pub_form($node, $form_state) {
  */
 function chado_pub_validate($node, $form, &$form_state) {
 
-  // if this is a delete then don't validate
-  if($node->op == 'Delete') {
+  // We only want to validate when the node is saved.
+  // Since this validate can be called on AJAX and Deletion of the node
+  // we need to make this check to ensure queries are not executed
+  // without the proper values.
+  if(property_exists($node, "op") and $node->op != 'Save') {
     return;
   }
 
   // we are syncing if we do not have a node ID but we do have a pub_id. We don't
   // need to validate during syncing so just skip it.
-  if (is_null($node->nid) and property_exists($node, 'pub_id') and $node->pub_id != 0) {
+  if (!property_exists($node, 'nid') and property_exists($node, 'pub_id') and $node->pub_id != 0) {
     return;
   }
 
   // get the submitted values
-  $title        = trim($node->pubtitle);
-  $pyear        = trim($node->pyear);
-  $uniquename   = trim($node->uniquename);
-  $is_obsolete  = $node->is_obsolete;
-  $type_id      = $node->type_id;
+  $title        = property_exists($node, 'pubtitle') ? trim($node->pubtitle) : '';
+  $pyear        = property_exists($node, 'pyear') ? trim($node->pyear) : '';
+  $uniquename   = property_exists($node, 'uniquename') ? trim($node->uniquename) : '';
+  $is_obsolete  = property_exists($node, 'is_obsolete') ? trim($node->is_obsolete) : 0;
+  $type_id      = property_exists($node, 'type_id') ? trim($node->type_id) : '';
 
   $pub = array();
 
@@ -368,7 +375,7 @@ function chado_pub_validate($node, $form, &$form_state) {
     return;
   }
 
-  // get the media name looking at the properties
+  // Get the media name looking at the properties
   $series_name = '';
   $properties = chado_retrieve_node_form_properties($node);
   foreach ($properties as $key => $prop_values) {
@@ -377,13 +384,13 @@ function chado_pub_validate($node, $form, &$form_state) {
     if ($prop_type[0]->name == 'Conference Name' or
         $prop_type[0]->name == 'Journal Name' or
         $prop_type[0]->name == 'Series Name') {
-      $series_name = $prop_values[0];
+      $series_name = array_values($prop_values)[0];
     }
     if ($prop_type[0]->name == 'Citation') {
-      $uniquename = $prop_values[0];
+      $uniquename = array_values($prop_values)[0];
     }
     if (count($prop_values) == 1) {
-      $pub[$prop_type[0]->name] = $prop_values[0];
+      $pub[$prop_type[0]->name] = array_values($prop_values)[0];
     }
     else {
       $pub[$prop_type[0]->name] = $prop_values;
@@ -570,20 +577,22 @@ function chado_pub_node_access($node, $op, $account) {
  */
 function chado_pub_insert($node) {
 
-  $node->pubtitle     = trim($node->pubtitle);
-  $node->pyear        = trim($node->pyear);
-  $node->uniquename   = trim($node->uniquename);
-  $is_obsolete  = $node->is_obsolete;
-  $type_id      = $node->type_id;
-
-  // we need an array suitable for the tripal_pub_create_citation() function
-  // to automatically generate a citation if a uniquename doesn't already exist
-  $pub_arr = array();
+  $pub_id = '';
 
   // if there is an pub_id in the $node object then this must be a sync so
   // we can skip adding the pub as it is already there, although
-  // we do need to proceed with the rest of the insert
+  // we do need to proceed with insertion into the chado/drupal linking table.
   if (!property_exists($node, 'pub_id')) {
+
+    $node->pubtitle     = trim($node->pubtitle);
+    $node->pyear        = trim($node->pyear);
+    $node->uniquename   = trim($node->uniquename);
+    $is_obsolete  = $node->is_obsolete;
+    $type_id      = $node->type_id;
+
+    // we need an array suitable for the tripal_pub_create_citation() function
+    // to automatically generate a citation if a uniquename doesn't already exist
+    $pub_arr = array();
 
     $properties = array(); // stores all of the properties we need to add
     $cross_refs = array(); // stores any cross references for this publication
@@ -1161,7 +1170,6 @@ function tripal_pub_node_insert($node) {
  * @ingroup tripal_pub
  */
 function tripal_pub_node_load($nodes, $types) {
-
   if (count(array_intersect(array('chado_pub'), $types))) {
     foreach ($nodes as $nid => $node) {
       if ($node->type == 'chado_pub' and !property_exists($node, 'path')) {

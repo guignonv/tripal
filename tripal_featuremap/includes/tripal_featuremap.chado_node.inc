@@ -100,7 +100,7 @@ function chado_featuremap_form($node, &$form_state) {
     '#maxlength'     => 255
   );
   $form['description']= array(
-    '#type'          => 'textarea',
+    '#type'          => 'text_format',
     '#title'         => t('Map Description'),
     '#description'   => t('A description of the map.'),
     '#required'      => TRUE,
@@ -155,20 +155,25 @@ function chado_featuremap_form($node, &$form_state) {
  */
 function chado_featuremap_validate($node, $form, &$form_state) {
 
-  // if this is a delete then don't validate
-  if($node->op == 'Delete') {
+  if ($node->unittype_id == 0) {
+    form_set_error('unittype_id', 'Please provide a unit type for this map.');
+  }
+  // We only want to validate when the node is saved.
+  // Since this validate can be called on AJAX and Deletion of the node
+  // we need to make this check to ensure queries are not executed
+  // without the proper values.
+  if(property_exists($node, "op") and $node->op != 'Save') {
     return;
   }
 
   // we are syncing if we do not have a node ID but we do have a featuremap_id. We don't
   // need to validate during syncing so just skip it.
-  if (is_null($node->nid) and property_exists($node, 'featuremap_id') and $node->featuremap_id != 0) {
+  if (!property_exists($node, 'nid') and property_exists($node, 'featuremap_id') and $node->featuremap_id != 0) {
     return;
   }
 
   // trim white space from text fields
-  $node->fmapname       = trim($node->fmapname);
-  $node->description    = trim($node->description);
+  $node->fmapname = property_exists($node, 'fmapname') ? trim($node->fmapname) : '';
 
   $featuremap = 0;
   // check to make sure the unique name on the map is unique
@@ -258,13 +263,15 @@ function chado_featuremap_node_access($node, $op, $account) {
  */
 function chado_featuremap_insert($node) {
 
-  $node->fmapname       = trim($node->fmapname);
-  $node->description    = trim($node->description);
+  $featuremap_id = '';
 
   // if there is an featuremap_id in the $node object then this must be a sync so
   // we can skip adding the featuremap as it is already there, although
-  // we do need to proceed with the rest of the insert
+  // we do need to proceed with insertion into the chado/drupal linking table.
   if (!property_exists($node, 'featuremap_id')) {
+
+    $node->fmapname = trim($node->fmapname);
+    $node->description  = trim($node->description['value']);
 
     $values = array(
       'name'        => $node->fmapname,
@@ -340,8 +347,8 @@ function chado_featuremap_insert($node) {
  */
 function chado_featuremap_update($node) {
 
-  $node->fmapname          = trim($node->fmapname);
-  $node->description    = trim($node->description);
+  $node->fmapname  = trim($node->fmapname);
+  $node->description  = trim($node->description['value']);
 
   $featuremap_id = chado_get_id_from_nid('featuremap', $node->nid) ;
 
