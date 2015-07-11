@@ -132,7 +132,9 @@ function tripal_core_init() {
 function tripal_core_menu() {
   $items = array();
 
-  // Triapl setting groups
+  //
+  // Tripal setting groups
+  //
   $items['admin/tripal'] = array(
     'title' => 'Tripal',
     'description' => t("Manage the behavior or Tripal and its various modules."),
@@ -181,7 +183,9 @@ function tripal_core_menu() {
     'weight' => -100,
   );
 
+  //
   // Tripal Setup
+  //
   $items['admin/tripal/setup'] = array(
     'title' => 'Setup Tripal',
     'description' => t('Tools for setup of Tripal'),
@@ -206,7 +210,9 @@ function tripal_core_menu() {
     'weight' => 10
   );
 
+  //
   // Jobs Management
+  //
   $items['admin/tripal/tripal_jobs'] = array(
     'title' => 'Jobs',
     'description' => t('Jobs managed by Tripal'),
@@ -256,7 +262,9 @@ function tripal_core_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  //
   // Materialized Views
+  //
   $items['admin/tripal/schema/mviews'] = array(
     'title' => 'Materialized Views',
     'description' => t('Materialized views are used to improve speed of large or complex queries.'),
@@ -332,7 +340,9 @@ function tripal_core_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  //
   // Custom Tables
+  //
   $items['admin/tripal/schema/custom_tables'] = array(
     'title' => 'Custom Tables',
     'description' => t('Creation of custom tables that are added to Chado database.'),
@@ -388,7 +398,9 @@ function tripal_core_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  // Relationshi API autocomplete callback
+  //
+  // Relationship API autocomplete callback
+  //
   $items['tripal_ajax/relationship_nodeform/%/%/name_to_id'] = array(
     'page callback' => 'chado_add_node_form_relationships_name_to_id_callback',
     'page arguments' => array(2,3),
@@ -396,7 +408,9 @@ function tripal_core_menu() {
     'type' => MENU_CALLBACK
   );
 
+  //
   // The node's TOC tab
+  //
   $items['node/%node/tripal_toc'] = array(
     'title' => 'TOC',
     'page callback' => 'drupal_get_form',
@@ -407,14 +421,16 @@ function tripal_core_menu() {
     'file' => '/includes/tripal_core.toc.inc',
   );
 
+  //
   // Web Services API callbacks.
-   $items['ws/chado/v0.1'] = array(
-     'title' => 'Tripal Web Services API v0.1',
-     'page callback' => 'tripal_core_chado_hal_api',
-     'access arguments' => array('access content'),
-     'type' => MENU_CALLBACK,
-     'file' => '/includes/tripal_core.ws_hal.inc',
-   );
+  //
+  $items['ws'] = array(
+    'title' => 'Tripal Web Services',
+    'page callback' => 'tripal_core_ws',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => '/includes/web_services/tripal_core.ws.inc',
+  );
 
   return $items;
 }
@@ -474,7 +490,7 @@ function tripal_core_permission() {
           be useful for site developers who might want these IDs when working
           with the underlying database.'),
       'restrict access' => TRUE,
-    )
+    ),
   );
 }
 
