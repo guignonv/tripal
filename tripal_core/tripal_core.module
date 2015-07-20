@@ -421,17 +421,6 @@ function tripal_core_menu() {
     'file' => '/includes/tripal_core.toc.inc',
   );
 
-  //
-  // Web Services API callbacks.
-  //
-  $items['ws'] = array(
-    'title' => 'Tripal Web Services',
-    'page callback' => 'tripal_core_ws',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => '/includes/web_services/tripal_core.ws.inc',
-  );
-
   return $items;
 }
 
