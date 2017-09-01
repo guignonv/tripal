@@ -982,13 +982,28 @@ function tripal_html5_file_process($element, $form_state, $complete_form) {
   $name = preg_replace('/[^\w]/', '_', $name);
   $allowed_types = array_key_exists('#allowed_types', $element) ? $element['#allowed_types'] : array();
   $cardinality = array_key_exists('#cardinality', $element) ? $element['#cardinality'] : 1;
+  $paired = array_key_exists('#paired', $element) ? $element['#paired'] : FALSE;
 
-  $headers = array(
-    array('data' => 'File'),
-    array('data' => 'Size', 'width' => '10%'),
-    array('data' => 'Upload Progress', 'width' => '20%'),
-    array('data' => 'Action', 'width' => '10%')
-  );
+  if (!$paired) {
+    $headers = array(
+      array('data' => 'File'),
+      array('data' => 'Size', 'width' => '10%'),
+      array('data' => 'Upload Progress', 'width' => '20%'),
+      array('data' => 'Action', 'width' => '10%')
+    );
+  }
+  else {
+    $headers = array(
+      array('data' => 'Paired File #1'),
+      array('data' => 'Size', 'width' => '5%'),
+      array('data' => 'Upload Progress', 'width' => '10%'),
+      array('data' => 'Action', 'width' => '5%'),
+      array('data' => 'Paired File #2'),
+      array('data' => 'Size', 'width' => '5%'),
+      array('data' => 'Upload Progress', 'width' => '10%'),
+      array('data' => 'Action', 'width' => '5%')
+    );
+  }
   $rows = array();
   $table_vars = array(
     'header'      => $headers,
@@ -1035,13 +1050,20 @@ function tripal_html5_file_process($element, $form_state, $complete_form) {
   $uploader_settings = array(
     'table_id' => '#tripal-html5-file-upload-table-' . $type,
     'submit_id' => '#tripal-html5-file-upload-submit-' . $type,
-    'category' => array($element['#usage_id'] . '-' . $element['#usage_type']),
     'cardinality' => $cardinality,
     'target_id' => 'tripal-html5-upload-fid-' . $type,
     'module' => $module,
     'allowed_types' => $allowed_types,
   );
-
+  if (!$paired) {
+    $uploader_settings['category'] = array($element['#usage_id'] . '-' . $element['#usage_type']);
+  }
+  else {
+    $uploader_settings['category'] = array(
+      $element['#usage_id'] . '-' . $element['#usage_type'] . '-1',
+      $element['#usage_id'] . '-' . $element['#usage_type'] . '-2',
+    );
+  }
 
   drupal_add_js(array($type_var_name => $uploader_settings), 'setting');
   drupal_add_js(drupal_get_path ('module', 'tripal') . '/theme/js/TripalUploader.js');
