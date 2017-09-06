@@ -102,12 +102,6 @@ function tripal_ws_tripal_sites_edit_form($form, &$form_state, $tripal_site_id =
     '#default_value' => $url,
     '#required' => TRUE
   );
-  $form['tripal_site_info']['version'] = array(
-    '#title' => t('Version'),
-    '#type' => 'textfield',
-    '#description' => t('Web services version used by the Tripal site.'),
-    '#default_value' => $version,
-  );
   $form['tripal_site_info']['description'] = array(
     '#title' => t('Description'),
     '#type' => 'textarea',
