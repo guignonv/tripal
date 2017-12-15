@@ -1230,7 +1230,7 @@ function _tripal_get_bundle_field_element_details($elements, &$field_details) {
      $term = tripal_get_term_details($term_vocab, $term_accession);
 
      $element_details = array(
-       'name' => $element_info['name'],
+       'name' => array_key_exists('name', $element_info) ? $element_info['name'] : strtolower(preg_replace('/_/', ' ', $term['name'])),
        'label' => array_key_exists('label', $element_info) ? $element_info['label'] : ucfirst(preg_replace('/_/', ' ', $term['name'])),
        'help' => array_key_exists('help', $element_info) ? $element_info['help'] : '',
        'term' => array(
@@ -1302,11 +1302,11 @@ function tripal_insert_entity($bundle_name, $values = array()){
     throw new Exception(t('Please provide a bundle name.'));
   }
 
+  $bundle = tripal_load_bundle_entity(array('name' => $bundle_name));
+
   if (!user_access('create ' . $bundle->name, $user)) {
     throw new Exception("Permission Denied.");
   }
-
-  $bundle = tripal_load_bundle_entity(array('name' => $bundle_name));
 
   // Create the entity.
   $ec = entity_get_controller('TripalEntity');
