@@ -6,7 +6,9 @@ $options = array('return_array' => 1);
 $stock = chado_expand_var($stock, 'table', 'stockcollection_stock', $options);
 $collections = $stock->stockcollection_stock;
 
-if (count($collections) > 0) {?>
+$collection_count = is_array($collections) ? count($collections) : 1;
+
+if ($collection_count > 0) {?>
   <div class="tripal_stock-data-block-desc tripal-data-block-desc">This stock is found in the following collections.</div> <?php 
   
   // the $headers array is an array of fields to use as the colum headers. 
