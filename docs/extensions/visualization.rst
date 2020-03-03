@@ -27,6 +27,15 @@ Mainlab Tripal Data Display contains a set of Drupal/PHP templates that organize
 `Documentation <https://gitlab.com/mainlabwsu/mainlab_tripal/blob/master/README.md>`__
 `Repository <https://gitlab.com/mainlabwsu/mainlab_tripal>`__
 
+MSAViewer
+---------
+
+This extension provides a simple file/link formatter and text filter for multiple-alignment files using
+the Javascript library `MSAViewer <https://github.com/wilzbach/msa>`__ for display.
+
+`Documentation <https://msa.biojs.net>`__
+`Repository <https://www.drupal.org/project/msaviewer>`__
+
 ND Genotypes
 -------------
 
@@ -36,9 +45,9 @@ This module provides support and visualization of genotypic data stored in a mod
 `Repository <https://github.com/UofS-Pulse-Binfo/nd_genotypes>`__
 
 Phylotree
--------------------
+---------
 
-This extension provides a simple file formatter for `Newick <http://evolution.genetics.washington.edu/phylip/newicktree.html>`__ tree files using
+This extension provides a simple file/link formatter and text filter for `Newick <http://evolution.genetics.washington.edu/phylip/newicktree.html>`__ tree files using
 the Javascript library `Phylotree <https://github.com/veg/phylotree.js/tree/master>`__ for display.
 
 `Documentation <https://cgit.drupalcode.org/phylotree/tree/README.md>`__
