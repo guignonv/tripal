@@ -50,3 +50,15 @@ This modules provides a form interface so users can custom filter existing VCF f
 
 `Documentation <https://github.com/UofS-Pulse-Binfo/vcf_filter/blob/master/README.md>`__
 `Repository <https://github.com/UofS-Pulse-Binfo/vcf_filter>`__
+
+Gigwa
+-----
+
+.. image:: https://tripal.readthedocs.io/en/latest/_images/Tripal-Bronze.png
+  :target: https://tripal.readthedocs.io/en/7.x-3.x/extensions/module_rating.html#Bronze
+  :alt: Tripal Rating: Bronze
+
+This module integrates a Gigwa site into a Tripal site to keep the same user interface (menu, etc.). It provides an administration interface to configure Gigwa integration and select the available databases and projects.
+
+`Documentation <https://git.drupalcode.org/project/gigwa/-/blob/7.x-1.x/README.md>`__
+`Repository <https://git.drupalcode.org/project/gigwa>`__
